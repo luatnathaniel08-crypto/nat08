@@ -8,20 +8,27 @@
 </head>
 <body>
 
-  <h1>🎢 Coaster Status</h1>
+  <div class="card">
+    <img src="logo.png" alt="Mabalacat City College Logo" id="logo">
+    <h1>🎢 Coaster Status</h1>
+    <p class="subtitle">Mabalacat City College</p>
 
-  <div id="status-box">
-    <p id="slot-count">Loading...</p>
+    <div id="status-box">
+      <span id="status-icon">🎟️</span>
+      <p id="slot-count">Loading...</p>
+    </div>
+
+    <div id="controls">
+      <button id="board-btn" class="btn board">Board</button>
+      <button id="exit-btn" class="btn exit">Exit</button>
+      <button id="reset-btn" class="btn reset">Reset</button>
+    </div>
+
+    <div class="qr-section">
+      <p>Scan to check live status</p>
+      <img src="qr-code.png" alt="Scan to check coaster status" id="qr-image">
+    </div>
   </div>
-
-  <div id="controls">
-    <button id="board-btn">Board Rider (+1)</button>
-    <button id="exit-btn">Rider Exits (-1)</button>
-    <button id="reset-btn">Reset</button>
-  </div>
-
-  <h3>Scan to view live status</h3>
-  <img src="qr-code.png" alt="Scan to check coaster status" id="qr-image">
 
   <script type="module" src="script.js"></script>
 </body>
