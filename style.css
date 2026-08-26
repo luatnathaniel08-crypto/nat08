@@ -1,0 +1,45 @@
+body {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 40px;
+  background: #f4f4f4;
+}
+
+#status-box {
+  font-size: 28px;
+  font-weight: bold;
+  padding: 25px;
+  border-radius: 12px;
+  background: #e6f7e6;
+  margin: 20px auto;
+  max-width: 400px;
+}
+
+#status-box.full {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+#controls {
+  margin: 20px 0;
+}
+
+button {
+  font-size: 16px;
+  padding: 10px 18px;
+  margin: 5px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #333;
+  color: white;
+}
+
+button:hover {
+  background: #555;
+}
+
+#qr-image {
+  width: 200px;
+  margin-top: 20px;
+}
