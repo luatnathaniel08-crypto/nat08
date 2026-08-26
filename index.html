@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coaster Slot Monitor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>🎢 Coaster Status</h1>
+
+  <div id="status-box">
+    <p id="slot-count">Loading...</p>
+  </div>
+
+  <div id="controls">
+    <button id="board-btn">Board Rider (+1)</button>
+    <button id="exit-btn">Rider Exits (-1)</button>
+    <button id="reset-btn">Reset</button>
+  </div>
+
+  <h3>Scan to view live status</h3>
+  <img src="qr-code.png" alt="Scan to check coaster status" id="qr-image">
+
+  <script src="script.js"></script>
+</body>
+</html>
