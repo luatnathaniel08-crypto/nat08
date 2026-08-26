@@ -32,11 +32,15 @@ function updateButtonStates() {
 
 function updateDisplay(filled) {
   const remaining = totalSlots - filled;
+  const iconEl = document.getElementById("status-icon");
+
   if (remaining <= 0) {
-    slotCountEl.textContent = "🚫 COASTER FULL";
+    slotCountEl.textContent = "COASTER FULL";
+    iconEl.textContent = "🚫";
     statusBox.classList.add("full");
   } else {
-    slotCountEl.textContent = `✅ ${remaining} of ${totalSlots} slots available`;
+    slotCountEl.textContent = `${remaining} of ${totalSlots} slots available`;
+    iconEl.textContent = "🎟️";
     statusBox.classList.remove("full");
   }
 }
