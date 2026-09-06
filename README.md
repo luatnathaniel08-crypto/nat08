@@ -1,2 +1,0 @@
-# nat08
-student
