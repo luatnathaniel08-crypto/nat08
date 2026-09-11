@@ -6,6 +6,10 @@
   <meta name="theme-color" content="#1B2140">
   <title>Coaster Seat Reservation</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
@@ -74,20 +78,20 @@
       </section>
 
       <div class="schedule-selectors">
-  <div class="select-group">
-    <label for="select-dapdap-mabiga"><strong>MCC Dapdap to Mabiga</strong></label>
-    <select id="select-dapdap-mabiga" class="trip-dropdown">
-      <option value="" disabled selected>-- Select Time --</option>
-    </select>
-  </div>
+        <div class="select-group">
+          <label for="select-dapdap-mabiga"><strong>MCC Dapdap to Mabiga</strong></label>
+          <select id="select-dapdap-mabiga" class="trip-dropdown">
+            <option value="" disabled selected>-- Select Time --</option>
+          </select>
+        </div>
 
-  <div class="select-group">
-    <label for="select-mabiga-dapdap"><strong>Mabiga to MCC Dapdap</strong></label>
-    <select id="select-mabiga-dapdap" class="trip-dropdown">
-      <option value="" disabled selected>-- Select Time --</option>
-    </select>
-  </div>
-</div>
+        <div class="select-group">
+          <label for="select-mabiga-dapdap"><strong>Mabiga to MCC Dapdap</strong></label>
+          <select id="select-mabiga-dapdap" class="trip-dropdown">
+            <option value="" disabled selected>-- Select Time --</option>
+          </select>
+        </div>
+      </div>
 
       <section id="reservation-panel" class="reservation-panel" hidden>
         <p id="reservation-trip"></p>
@@ -132,6 +136,6 @@
 
   <div id="toast" class="toast"></div>
 
-  <script type="module" src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
