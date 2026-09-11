@@ -275,29 +275,6 @@ h1 {
   transition: width .35s ease;
 }
 
-.trip-section {
-  background: rgba(255,255,255,.55);
-  border: 1px solid rgba(27,33,64,.08);
-  border-radius: 14px;
-  padding: 13px;
-  margin-bottom: 12px;
-}
-
-.section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-#trip-select {
-  width: 100%;
-  border: 1px solid rgba(27,33,64,.16);
-  border-radius: 10px;
-  padding: 11px 10px;
-  font: 600 .85rem var(--font-body);
-}
-
 .reservation-panel {
   border: 2px solid rgba(47,168,138,.35);
   background: rgba(47,168,138,.08);
@@ -345,42 +322,147 @@ h1 {
 .btn.board { background: var(--teal); }
 .btn.exit { background: var(--navy-light); }
 
+/* --- Seat Section & Grid (Bus Layout) --- */
 .seat-section {
   background: rgba(255,255,255,.62);
   border: 1px solid rgba(27,33,64,.10);
   border-radius: 14px;
   padding: 13px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.section-heading h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.sync-indicator {
+  font-size: .68rem;
+  font-weight: 800;
+  color: #18785F;
 }
 
 .seat-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
-  margin-top: 8px;
+  grid-template-columns: repeat(2, 1fr) 14px repeat(2, 1fr);
+  gap: 8px 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 8px;
+  background: rgba(27,33,64,.03);
+  border-radius: 10px;
+  border: 1px solid rgba(27,33,64,.08);
+}
+
+.aisle-spacer {
+  grid-column: 3;
+  pointer-events: none;
 }
 
 .seat {
-  min-height: 38px;
-  border: 1px solid #2FA88A;
-  border-radius: 8px;
-  background: #E9F7F2;
-  color: #18785F;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: .67rem;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px 2px;
+  min-height: 48px;
+  transition: all 0.2s ease-in-out;
 }
 
-.seat.reserved { background: #F9D7D1; border-color: #E8543E; color: #A8371F; }
-.seat.mine { background: #DDE5FF; border-color: #4A65C7; color: #263C91; }
-
-.sync-indicator {
-  font-size: .62rem;
+.seat-num {
+  font-size: 0.78rem;
   font-weight: 800;
-  color: #18785F;
+  color: #334155;
+  line-height: 1.1;
+}
+
+.seat-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+.seat.free {
+  border-color: #2FA88A;
+  background: #E9F7F2;
+}
+
+.seat.free .seat-badge {
+  background: #2FA88A;
+  color: #ffffff;
+}
+
+.seat.reserved {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  opacity: 0.7;
+}
+
+.seat.reserved .seat-num {
+  color: #94a3b8;
+}
+
+.seat.reserved .seat-badge {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.seat.mine {
+  border-color: #4A65C7;
+  background: #DDE5FF;
+}
+
+.seat.mine .seat-num {
+  color: #263C91;
+}
+
+.seat.mine .seat-badge {
+  background: #4A65C7;
+  color: #ffffff;
+}
+
+/* Schedule Selectors */
+.schedule-selectors {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.select-group label {
+  font-size: 0.82rem;
+  color: var(--navy);
+}
+
+.trip-dropdown {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(27,33,64,.2);
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 0.88rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .toast {
@@ -400,35 +482,4 @@ h1 {
   z-index: 100;
 }
 
-.schedule-selectors {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.select-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.select-group label {
-  font-size: 0.9rem;
-  color: #004085;
-}
-
-.trip-dropdown {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #004085;
-  border-radius: 6px;
-  background-color: #ffffff;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.trip-dropdown:focus {
-  outline: 2px solid #0056b3;
-}
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
