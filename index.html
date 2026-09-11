@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1B2140">
+  <title>Coaster Seat Reservation</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --navy: #1B2140;
+  --navy-light: #2A3260;
+  --cream: #FBF6E9;
+  --gold: #F4B740;
+  --teal: #2FA88A;
+  --amber-strong: #C9861F;
+  --red: #E8543E;
+  --grey: #8A8FA6;
+  --ink: #1B2140;
+  --ink-soft: #5A5F7D;
+  --white: #FFFFFF;
+  --radius: 20px;
+  --font-display: 'Baloo 2', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 14px;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(244,183,64,.18), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(47,168,138,.16), transparent 45%),
+    var(--navy);
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: var(--cream);
+  border-radius: var(--radius);
+  padding: 26px 22px 24px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  border: 2px dashed rgba(27,33,64,.15);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.card::before, .card::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  background: var(--navy);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.card::before { left: -13px; }
+.card::after { right: -13px; }
+
+.card-inner { position: relative; z-index: 1; }
+
+.brand-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.65rem;
+  margin: 0;
+}
+
+.subtitle {
+  margin: 0 0 8px;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.capacity-badge {
+  background: rgba(244,183,64,.25);
+  color: #805A12;
+  border-radius: 999px;
+  padding: 6px 9px;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.ph-clock {
+  margin: 4px 0 16px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--navy);
+  background: rgba(27,33,64,.06);
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.utility-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 4px 0 10px;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 4px 2px;
+  font: 700 .72rem var(--font-body);
+  color: var(--navy-light);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.availability-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(232,84,62,.12);
+  border: 1px solid rgba(232,84,62,.35);
+  color: #A8371F;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  font-size: .78rem;
+  font-weight: 600;
+}
+.availability-banner p { margin: 0; }
+
+.driver-panel {
+  background: rgba(27,33,64,.06);
+  border: 2px solid rgba(27,33,64,.16);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.driver-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.driver-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.driver-current-status {
+  margin: 10px 0 0;
+  font-size: .78rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(27,33,64,.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 320px;
+  background: var(--cream);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.4);
+}
+
+.field-label {
+  display: block;
+  font-size: .66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 10px 0 4px;
+}
+
+#login-form input {
+  width: 100%;
+  border: 1px solid rgba(27,33,64,.18);
+  border-radius: 10px;
+  padding: 10px;
+  font: 500 .85rem var(--font-body);
+}
+
+.login-error {
+  color: var(--red);
+  font-size: .72rem;
+  font-weight: 700;
+  margin: 10px 0 0;
+}
+
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.info-item {
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(27,33,64,.08);
+  border-radius: 12px;
+  padding: 9px;
+}
+
+.info-item span {
+  display: block;
+  font-size: .65rem;
+  color: var(--ink-soft);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.info-item strong {
+  display: block;
+  margin-top: 2px;
+  font-size: .75rem;
+}
+
+#status-box {
+  background: var(--navy);
+  color: var(--cream);
+  border-radius: 14px;
+  padding: 18px 14px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+#status-icon { font-size: 1.9rem; display: block; }
+#slot-count { font-family: var(--font-display); font-weight: 700; font-size: 1.18rem; margin: 0; }
+#slot-count .available-num { font-size: 1.9rem; }
+
+.capacity-bar {
+  width: 100%;
+  height: 9px;
+  background: rgba(27,33,64,.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: -6px 0 14px;
+}
+
+.capacity-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--teal);
+  transition: width .35s ease;
+}
+
+.trip-section {
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(27,33,64,.08);
+  border-radius: 14px;
+  padding: 13px;
+  margin-bottom: 12px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#trip-select {
+  width: 100%;
+  border: 1px solid rgba(27,33,64,.16);
+  border-radius: 10px;
+  padding: 11px 10px;
+  font: 600 .85rem var(--font-body);
+}
+
+.reservation-panel {
+  border: 2px solid rgba(47,168,138,.35);
+  background: rgba(47,168,138,.08);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.timer-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 7px;
+}
+
+#reservation-timer { font: 800 1.55rem var(--font-display); }
+
+.checkin-qr {
+  width: 130px;
+  height: 130px;
+  margin: 10px auto;
+  background: white;
+  padding: 5px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#controls { display: grid; gap: 9px; margin-bottom: 16px; }
+
+.btn {
+  width: 100%;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: .95rem;
+  border: none;
+  border-radius: 12px;
+  padding: 13px 10px;
+  cursor: pointer;
+  color: var(--cream);
+}
+
+.btn.board { background: var(--teal); }
+.btn.exit { background: var(--navy-light); }
+
+.seat-section {
+  background: rgba(255,255,255,.62);
+  border: 1px solid rgba(27,33,64,.10);
+  border-radius: 14px;
+  padding: 13px;
+  margin-bottom: 12px;
+}
+
+.seat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.seat {
+  min-height: 38px;
+  border: 1px solid #2FA88A;
+  border-radius: 8px;
+  background: #E9F7F2;
+  color: #18785F;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: .67rem;
+}
+
+.seat.reserved { background: #F9D7D1; border-color: #E8543E; color: #A8371F; }
+.seat.mine { background: #DDE5FF; border-color: #4A65C7; color: #263C91; }
+
+.sync-indicator {
+  font-size: .62rem;
+  font-weight: 800;
+  color: #18785F;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translate(-50%, 15px);
+  background: var(--navy);
+  color: var(--cream);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: .75rem;
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 100;
+}
+
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <main class="card">
+    <div class="card-inner">
+      <div class="brand-row">
+        <div>
+          <h1>🎢 Coaster Reservation</h1>
+          <p class="subtitle">Mabalacat City College</p>
+        </div>
+        <span class="capacity-badge">30 seats</span>
+      </div>
+
+      <div class="utility-row">
+        <button id="switch-role-btn" class="link-btn" type="button">🔁 Switch Role</button>
+      </div>
+
+      <p id="ph-clock" class="ph-clock">🇵🇭 --:--:-- --</p>
+
+      <section class="info-grid">
+        <div class="info-item">
+          <span>Operating hours</span>
+          <strong>6:00 AM – 9:00 PM</strong>
+        </div>
+        <div class="info-item">
+          <span>Interval</span>
+          <strong>Every 20 mins</strong>
+        </div>
+      </section>
+
+      <div id="status-box">
+        <span id="status-icon">🎟️</span>
+        <p id="slot-count">Loading...</p>
+      </div>
+
+      <div class="capacity-bar">
+        <div id="capacity-bar-fill" class="capacity-bar-fill"></div>
+      </div>
+
+      <div id="availability-banner" class="availability-banner" hidden>
+        <p id="availability-message">The driver has marked this coaster as unavailable right now.</p>
+      </div>
+
+      <section id="driver-panel" class="driver-panel" hidden>
+        <div class="driver-panel-header">
+          <h2>🚐 Driver Panel</h2>
+          <button id="driver-logout" class="link-btn" type="button">Log out</button>
+        </div>
+        <div class="driver-buttons">
+          <button id="mark-available-btn" class="btn board" type="button">✅ Available</button>
+          <button id="mark-unavailable-btn" class="btn exit" type="button">🚫 Unavailable</button>
+        </div>
+        <div class="driver-buttons">
+          <button id="mark-not-full-btn" class="btn board" type="button">🟢 Not Full</button>
+          <button id="mark-full-btn" class="btn exit" type="button">🔴 Full</button>
+        </div>
+        <p id="driver-current-status" class="driver-current-status"></p>
+      </section>
+
+      <section class="seat-section">
+        <div class="section-heading">
+          <h2>Live seat slots</h2>
+          <span id="sync-indicator" class="sync-indicator">Connecting…</span>
+        </div>
+        <div id="seat-grid" class="seat-grid"></div>
+      </section>
+
+      <section class="trip-section">
+        <div class="section-heading">
+          <h2>Choose a trip</h2>
+          <span id="trip-date"></span>
+        </div>
+        <select id="trip-select"></select>
+      </section>
+
+      <section id="reservation-panel" class="reservation-panel" hidden>
+        <p id="reservation-trip"></p>
+        <div class="timer-wrap">
+          <span>Expires in:</span>
+          <strong id="reservation-timer">10:00</strong>
+        </div>
+        <div id="checkin-qr" class="checkin-qr"></div>
+      </section>
+
+      <div id="controls">
+        <button id="reserve-btn" class="btn board">Reserve Seat</button>
+        <button id="cancel-btn" class="btn exit" hidden>Cancel Reservation</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="role-select-screen" class="modal-overlay" hidden>
+    <div class="modal-card">
+      <h2>Select Role</h2>
+      <button id="role-student-btn" class="btn board" style="margin-bottom:8px;">🎓 Student</button>
+      <button id="role-driver-btn" class="btn exit">🚐 Driver</button>
+    </div>
+  </div>
+
+  <div id="login-modal" class="modal-overlay" hidden>
+    <div class="modal-card">
+      <h2>Driver Login</h2>
+      <form id="login-form">
+        <label class="field-label">Email</label>
+        <input type="email" id="login-email" required>
+        <label class="field-label">Password</label>
+        <input type="password" id="login-password" required>
+        <p id="login-error" class="login-error" hidden></p>
+        <div class="modal-actions">
+          <button type="submit" class="btn board">Log In</button>
+          <button type="button" id="login-cancel" class="btn exit">Back</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  set
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+// Matched directly to your screenshot URL
+const firebaseConfig = {
+  apiKey: "AIzaSyDtkZE_OCad8dLlbFwAMFaCCC048cy6UQc",
+  authDomain: "coaster-reservation.firebaseapp.com",
+  databaseURL: "https://coaster-reservation-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "coaster-reservation",
+  storageBucket: "coaster-reservation.firebasestorage.app",
+  messagingSenderId: "308183827970",
+  appId: "1:308183827970:web:60b5e3ba8c4dfc7657491b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const CAPACITY = 30;
+const RESERVATION_HOLD_MS = 10 * 60 * 1000;
+const TZ = "Asia/Manila";
+
+const DRIVER_EMAIL = "coastermcc@gmail.com";
+const DRIVER_PASSWORD = "123456789";
+
+let reservations = {};
+let coasterAvailable = true;
+let coasterFull = false;
+let isDriverLoggedIn = sessionStorage.getItem("driver_logged_in") === "true";
+
+function getDeviceId() {
+  let id = localStorage.getItem("coaster_device_id");
+  if (!id) {
+    id = "dev_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("coaster_device_id", id);
+  }
+  return id;
+}
+const deviceId = getDeviceId();
+
+const slotCount = document.getElementById("slot-count");
+const phClock = document.getElementById("ph-clock");
+const tripSelect = document.getElementById("trip-select");
+const tripDate = document.getElementById("trip-date");
+const reserveBtn = document.getElementById("reserve-btn");
+const cancelBtn = document.getElementById("cancel-btn");
+const reservationPanel = document.getElementById("reservation-panel");
+const reservationTrip = document.getElementById("reservation-trip");
+const reservationTimer = document.getElementById("reservation-timer");
+const checkinQr = document.getElementById("checkin-qr");
+const seatGrid = document.getElementById("seat-grid");
+const syncIndicator = document.getElementById("sync-indicator");
+const toast = document.getElementById("toast");
+const availabilityBanner = document.getElementById("availability-banner");
+const availabilityMessage = document.getElementById("availability-message");
+const roleSelectScreen = document.getElementById("role-select-screen");
+const roleStudentBtn = document.getElementById("role-student-btn");
+const roleDriverBtn = document.getElementById("role-driver-btn");
+const switchRoleBtn = document.getElementById("switch-role-btn");
+const loginModal = document.getElementById("login-modal");
+const loginForm = document.getElementById("login-form");
+const loginEmail = document.getElementById("login-email");
+const loginPassword = document.getElementById("login-password");
+const loginError = document.getElementById("login-error");
+const loginCancel = document.getElementById("login-cancel");
+const driverPanel = document.getElementById("driver-panel");
+const driverLogout = document.getElementById("driver-logout");
+const markAvailableBtn = document.getElementById("mark-available-btn");
+const markUnavailableBtn = document.getElementById("mark-unavailable-btn");
+const markFullBtn = document.getElementById("mark-full-btn");
+const markNotFullBtn = document.getElementById("mark-not-full-btn");
+const driverCurrentStatus = document.getElementById("driver-current-status");
+const capacityBarFill = document.getElementById("capacity-bar-fill");
+
+let selectedTrip = null;
+let activeReservation = JSON.parse(localStorage.getItem("active_res") || "null");
+let timerInterval = null;
+
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3500);
+}
+
+function renderUI() {
+  const now = new Date();
+  phClock.textContent = `🇵🇭 ${now.toLocaleTimeString("en-US", { timeZone: TZ })}`;
+  
+  const dateKey = now.toISOString().split("T")[0];
+  tripDate.textContent = dateKey;
+
+  if (!coasterAvailable) {
+    availabilityBanner.hidden = false;
+    availabilityMessage.textContent = "Coaster marked UNAVAILABLE by driver.";
+  } else if (coasterFull) {
+    availabilityBanner.hidden = false;
+    availabilityMessage.textContent = "Coaster marked FULL by driver.";
+  } else {
+    availabilityBanner.hidden = true;
+  }
+
+  if (!selectedTrip) {
+    selectedTrip = `${dateKey}_360`;
+    renderTripOptions(dateKey);
+  }
+
+  renderSeats();
+  renderReservation();
+  driverCurrentStatus.textContent = `Status: ${coasterAvailable ? 'AVAILABLE' : 'UNAVAILABLE'} | ${coasterFull ? 'FULL' : 'NOT FULL'}`;
+}
+
+function renderTripOptions(dateKey) {
+  tripSelect.innerHTML = "";
+  for (let m = 360; m < 1260; m += 20) {
+    const h = Math.floor(m / 60);
+    const min = m % 60;
+    const label = `${h % 12 || 12}:${String(min).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+    const opt = document.createElement("option");
+    opt.value = `${dateKey}_${m}`;
+    opt.textContent = `${label} Departure`;
+    tripSelect.appendChild(opt);
+  }
+}
+
+function renderSeats() {
+  seatGrid.innerHTML = "";
+  const tripData = reservations[selectedTrip] || {};
+  let reservedCount = 0;
+
+  for (let i = 1; i <= CAPACITY; i++) {
+    const seatEl = document.createElement("div");
+    seatEl.className = "seat";
+
+    const resEntry = Object.values(tripData).find(r => r.seatNumber === i && r.status === "ACTIVE");
+
+    if (resEntry) {
+      reservedCount++;
+      if (resEntry.deviceId === deviceId) {
+        seatEl.classList.add("mine");
+        seatEl.innerHTML = `S${i}<br>YOU`;
+      } else {
+        seatEl.classList.add("reserved");
+        seatEl.innerHTML = `S${i}<br>TAKEN`;
+      }
+    } else {
+      seatEl.innerHTML = `S${i}<br>FREE`;
+    }
+    seatGrid.appendChild(seatEl);
+  }
+
+  const free = CAPACITY - reservedCount;
+  slotCount.innerHTML = `<span class="available-num">${free}</span> / ${CAPACITY} Free`;
+  capacityBarFill.style.width = `${(reservedCount / CAPACITY) * 100}%`;
+}
+
+function renderReservation() {
+  if (activeReservation && activeReservation.status === "ACTIVE") {
+    reservationPanel.hidden = false;
+    reserveBtn.hidden = true;
+    cancelBtn.hidden = false;
+    reservationTrip.textContent = `Trip: ${activeReservation.tripId}`;
+    
+    checkinQr.innerHTML = "";
+    if (window.QRCode) {
+      new QRCode(checkinQr, { text: activeReservation.id, width: 120, height: 120 });
+    }
+    
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const left = Math.max(0, activeReservation.expiresAt - Date.now());
+      const m = Math.floor(left / 60000);
+      const s = Math.floor((left % 60000) / 1000);
+      reservationTimer.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      if (left <= 0) {
+        localStorage.removeItem("active_res");
+        activeReservation = null;
+        renderUI();
+      }
+    }, 1000);
+  } else {
+    reservationPanel.hidden = true;
+    reserveBtn.hidden = false;
+    cancelBtn.hidden = true;
+  }
+}
+
+// Database Listeners (Pointing to 'reservations' as shown in your console screenshot)
+onValue(ref(db, ".info/connected"), (snap) => {
+  syncIndicator.textContent = snap.val() ? "Live Sync Active" : "Offline";
+});
+
+onValue(ref(db, "reservations"), (snap) => {
+  reservations = snap.val() || {};
+  renderUI();
+});
+
+onValue(ref(db, "coasterAvailability"), (snap) => {
+  const data = snap.val() || {};
+  coasterAvailable = data.available !== false;
+  coasterFull = data.full === true;
+  renderUI();
+});
+
+// Reservation Logic
+reserveBtn.addEventListener("click", () => {
+  if (!coasterAvailable || coasterFull) return showToast("Coaster unavailable.");
+
+  const tripData = reservations[selectedTrip] || {};
+  const active = Object.values(tripData).filter(r => r.status === "ACTIVE");
+
+  if (active.length >= CAPACITY) return showToast("Trip is full.");
+
+  const taken = active.map(r => r.seatNumber);
+  let nextSeat = 1;
+  while (taken.includes(nextSeat)) nextSeat++;
+
+  const resId = "res_" + Date.now();
+  const newRes = {
+    id: resId,
+    deviceId,
+    seatNumber: nextSeat,
+    status: "ACTIVE",
+    expiresAt: Date.now() + RESERVATION_HOLD_MS,
+    tripId: selectedTrip
+  };
+
+  set(ref(db, `reservations/${selectedTrip}/${resId}`), newRes)
+    .then(() => {
+      activeReservation = newRes;
+      localStorage.setItem("active_res", JSON.stringify(newRes));
+      showToast("Seat " + nextSeat + " Reserved!");
+      renderUI();
+    })
+    .catch((err) => showToast("Permission Error: " + err.message));
+});
+
+cancelBtn.addEventListener("click", () => {
+  if (!activeReservation) return;
+  set(ref(db, `reservations/${activeReservation.tripId}/${activeReservation.id}/status`), "CANCELLED")
+    .then(() => {
+      activeReservation = null;
+      localStorage.removeItem("active_res");
+      showToast("Reservation Cancelled.");
+      renderUI();
+    })
+    .catch((err) => showToast("Error: " + err.message));
+});
+
+// Driver Toggles
+markAvailableBtn.addEventListener("click", () => {
+  set(ref(db, "coasterAvailability/available"), true)
+    .then(() => showToast("Updated: Available"))
+    .catch((err) => showToast("Error: " + err.message));
+});
+
+markUnavailableBtn.addEventListener("click", () => {
+  set(ref(db, "coasterAvailability/available"), false)
+    .then(() => showToast("Updated: Unavailable"))
+    .catch((err) => showToast("Error: " + err.message));
+});
+
+markFullBtn.addEventListener("click", () => {
+  set(ref(db, "coasterAvailability/full"), true)
+    .then(() => showToast("Updated: Marked Full"))
+    .catch((err) => showToast("Error: " + err.message));
+});
+
+markNotFullBtn.addEventListener("click", () => {
+  set(ref(db, "coasterAvailability/full"), false)
+    .then(() => showToast("Updated: Marked Not Full"))
+    .catch((err) => showToast("Error: " + err.message));
+});
+
+// Navigation & Auth
+switchRoleBtn.addEventListener("click", () => { roleSelectScreen.hidden = false; });
+roleStudentBtn.addEventListener("click", () => { roleSelectScreen.hidden = true; driverPanel.hidden = true; });
+roleDriverBtn.addEventListener("click", () => {
+  roleSelectScreen.hidden = true;
+  if (isDriverLoggedIn) driverPanel.hidden = false;
+  else loginModal.hidden = false;
+});
+
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (loginEmail.value === DRIVER_EMAIL && loginPassword.value === DRIVER_PASSWORD) {
+    isDriverLoggedIn = true;
+    sessionStorage.setItem("driver_logged_in", "true");
+    loginModal.hidden = true;
+    driverPanel.hidden = false;
+  } else {
+    loginError.textContent = "Invalid login credentials";
+    loginError.hidden = false;
+  }
+});
+
+loginCancel.addEventListener("click", () => loginModal.hidden = true);
+driverLogout.addEventListener("click", () => {
+  isDriverLoggedIn = false;
+  sessionStorage.removeItem("driver_logged_in");
+  driverPanel.hidden = true;
+});
+
+tripSelect.addEventListener("change", (e) => {
+  selectedTrip = e.target.value;
+  renderUI();
+});
+
+setInterval(renderUI, 1000);
+  </script>
+</body>
+</html>
