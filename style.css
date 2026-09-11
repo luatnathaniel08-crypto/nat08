@@ -53,11 +53,11 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url('logo.png'); /* Or use your logo path */
+  background-image: url('logo.png');
   background-position: center;
   background-repeat: no-repeat;
   background-size: 80%;
-  opacity: 0.12; /* Adjust transparency here */
+  opacity: 0.12;
   pointer-events: none;
   z-index: 0;
 }
@@ -255,7 +255,16 @@ h1 {
   text-align: center;
 }
 
-#status-icon { font-size: 1.9rem; display: block; }
+/* Bus Emoji Icon */
+#status-icon { 
+  font-size: 1.9rem; 
+  display: block; 
+}
+
+#status-icon::before {
+  content: "🚌";
+}
+
 #slot-count { font-family: var(--font-display); font-weight: 700; font-size: 1.18rem; margin: 0; }
 #slot-count .available-num { font-size: 1.9rem; }
 
