@@ -27,12 +27,25 @@ body {
   align-items: flex-start;
   justify-content: center;
   padding: 24px 14px;
-  background:
-    radial-gradient(circle at 15% 10%, rgba(244,183,64,.18), transparent 40%),
-    radial-gradient(circle at 85% 90%, rgba(47,168,138,.16), transparent 45%),
-    var(--navy);
+  background-color: var(--navy);
   font-family: var(--font-body);
   color: var(--ink);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Semi-transparent Watermark Background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url('logo.png'); /* Replace 'logo.png' with your image path or file name */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: min(85vw, 550px);
+  opacity: 0.12; /* Adjust transparency here (0.10 to 0.20 works best) */
+  pointer-events: none;
+  z-index: 0;
 }
 
 .card {
@@ -46,6 +59,7 @@ body {
   border: 2px dashed rgba(27,33,64,.15);
   overflow: hidden;
   isolation: isolate;
+  z-index: 1;
 }
 
 .card::before, .card::after {
