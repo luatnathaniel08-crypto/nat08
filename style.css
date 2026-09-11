@@ -400,25 +400,35 @@ h1 {
   z-index: 100;
 }
 
-.route-selector {
+.schedule-selectors {
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
-.route-btn {
-  flex: 1;
+.select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.select-group label {
+  font-size: 0.9rem;
+  color: #004085;
+}
+
+.trip-dropdown {
+  width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #004085;
   border-radius: 6px;
-  background-color: #f0f0f0;
+  background-color: #ffffff;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: bold;
 }
 
-.route-btn.active {
-  background-color: #004085;
-  color: #ffffff;
-  border-color: #004085;
+.trip-dropdown:focus {
+  outline: 2px solid #0056b3;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
