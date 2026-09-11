@@ -23,6 +23,16 @@ const CAPACITY = 30;
 const RESERVATION_HOLD_MS = 10 * 60 * 1000;
 const TZ = "Asia/Manila";
 
+let serverTimeOffset = 0;
+
+onValue(ref(db, ".info/serverTimeOffset"), (snap) => {
+  serverTimeOffset = snap.val() || 0;
+});
+
+function getSyncedNow() {
+  return Date.now() + serverTimeOffset;
+}
+
 const DRIVER_EMAIL = "coastermcc@gmail.com";
 const DRIVER_PASSWORD = "123456789";
 
@@ -118,15 +128,50 @@ function renderUI() {
 
 function renderTripOptions(dateKey) {
   tripSelect.innerHTML = "";
-  for (let m = 360; m < 1260; m += 20) {
-    const h = Math.floor(m / 60);
-    const min = m % 60;
-    const label = `${h % 12 || 12}:${String(min).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+
+  const schedules = [
+    // MCC Dapdap to Mabiga
+    { label: "6:00 AM - Dapdap to Mabiga", val: "dapdap_mabiga_0600" },
+    { label: "6:40 AM - Dapdap to Mabiga", val: "dapdap_mabiga_0640" },
+    { label: "7:20 AM - Dapdap to Mabiga", val: "dapdap_mabiga_0720" },
+    { label: "8:00 AM - Dapdap to Mabiga", val: "dapdap_mabiga_0800" },
+    { label: "10:00 AM - Dapdap to Mabiga", val: "dapdap_mabiga_1000" },
+    { label: "10:40 AM - Dapdap to Mabiga", val: "dapdap_mabiga_1040" },
+    { label: "11:20 AM - Dapdap to Mabiga", val: "dapdap_mabiga_1120" },
+    { label: "1:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1300" },
+    { label: "2:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1400" },
+    { label: "3:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1500" },
+    { label: "4:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1600" },
+    { label: "5:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1700" },
+    { label: "6:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1800" },
+    { label: "7:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1900" },
+    { label: "8:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_2000" },
+    { label: "9:10 PM - Dapdap to Mabiga", val: "dapdap_mabiga_2110" },
+
+    // Mabiga to MCC Dapdap
+    { label: "6:20 AM - Mabiga to Dapdap", val: "mabiga_dapdap_0620" },
+    { label: "7:00 AM - Mabiga to Dapdap", val: "mabiga_dapdap_0700" },
+    { label: "7:40 AM - Mabiga to Dapdap", val: "mabiga_dapdap_0740" },
+    { label: "8:20 AM - Mabiga to Dapdap", val: "mabiga_dapdap_0820" },
+    { label: "10:20 AM - Mabiga to Dapdap", val: "mabiga_dapdap_1020" },
+    { label: "11:00 AM - Mabiga to Dapdap", val: "mabiga_dapdap_1100" },
+    { label: "11:40 AM - Mabiga to Dapdap", val: "mabiga_dapdap_1140" },
+    { label: "1:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1320" },
+    { label: "2:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1420" },
+    { label: "3:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1520" },
+    { label: "4:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1620" },
+    { label: "5:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1720" },
+    { label: "6:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1820" },
+    { label: "7:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1920" },
+    { label: "8:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_2020" }
+  ];
+
+  schedules.forEach((item) => {
     const opt = document.createElement("option");
-    opt.value = `${dateKey}_${m}`;
-    opt.textContent = `${label} Departure`;
+    opt.value = `${dateKey}_${item.val}`;
+    opt.textContent = item.label;
     tripSelect.appendChild(opt);
-  }
+  });
 }
 
 function renderSeats() {
@@ -182,7 +227,7 @@ function renderReservationUI() {
 }
 
 function startTimer() {
-  if (activeTimerInterval) return; // Prevent creating multiple interval instances
+  if (activeTimerInterval) return;
 
   function updateCountdown() {
     if (!activeReservation || !activeReservation.expiresAt) {
@@ -190,11 +235,13 @@ function startTimer() {
       return;
     }
 
-    const remaining = activeReservation.expiresAt - Date.now();
+    const now = getSyncedNow();
+    const remaining = activeReservation.expiresAt - now;
 
     if (remaining <= 0) {
       stopTimer();
       reservationTimer.textContent = "00:00";
+      
       set(ref(db, `reservations/${activeReservation.tripId}/${activeReservation.id}/status`), "EXPIRED");
       localStorage.removeItem("active_res");
       activeReservation = null;
@@ -227,6 +274,25 @@ onValue(ref(db, ".info/connected"), (snap) => {
 
 onValue(ref(db, "reservations"), (snap) => {
   reservations = snap.val() || {};
+
+  let foundActive = null;
+  Object.keys(reservations).forEach((tripKey) => {
+    const trip = reservations[tripKey];
+    Object.values(trip).forEach((res) => {
+      if (res.deviceId === deviceId && res.status === "ACTIVE") {
+        foundActive = res;
+      }
+    });
+  });
+
+  if (foundActive) {
+    activeReservation = foundActive;
+    localStorage.setItem("active_res", JSON.stringify(foundActive));
+  } else if (activeReservation && activeReservation.status === "ACTIVE") {
+    activeReservation = null;
+    localStorage.removeItem("active_res");
+  }
+
   renderUI();
 });
 
@@ -251,7 +317,7 @@ reserveBtn.addEventListener("click", () => {
   while (taken.includes(nextSeat)) nextSeat++;
 
   const resId = "res_" + Date.now();
-  const expiresAt = Date.now() + RESERVATION_HOLD_MS;
+  const expiresAt = getSyncedNow() + RESERVATION_HOLD_MS;
 
   const newRes = {
     id: resId,
@@ -341,9 +407,10 @@ driverLogout.addEventListener("click", () => {
 });
 
 tripSelect.addEventListener("change", (e) => {
-  selectedTrip = e.target.value;
-  renderUI();
-});
+if (!selectedTrip) {
+  selectedTrip = `${dateKey}_dapdap_mabiga_0600`;
+  renderTripOptions(dateKey);
+}
 
 // Update Clock Only Every Second (Does not disrupt countdown)
 setInterval(updateClockOnly, 1000);
