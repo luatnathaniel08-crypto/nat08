@@ -3,72 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MCC Bus Tracker</title>
+  <meta name="theme-color" content="#1B2140">
+  <title>Coaster Seat Reservation</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-
-  <div class="card">
+  <main class="card">
     <div class="card-inner">
       <div class="brand-row">
         <div>
-          <h1>MCC Bus Tracker</h1>
-          <p class="subtitle">Campus Shuttle Status</p>
+          <h1>🎢 Coaster Reservation</h1>
+          <p class="subtitle">Mabalacat City College</p>
         </div>
-        <span class="capacity-badge">30 Seats Total</span>
+        <span class="capacity-badge">30 seats</span>
       </div>
 
-      <div class="ph-clock" id="clock">--:--:-- PM</div>
+      <div class="utility-row">
+        <button id="switch-role-btn" class="link-btn" type="button">🔁 Switch Role</button>
+      </div>
+
+      <p id="ph-clock" class="ph-clock">🇵🇭 --:--:-- --</p>
+
+      <section class="info-grid">
+        <div class="info-item">
+          <span>Operating hours</span>
+          <strong>6:00 AM – 9:00 PM</strong>
+        </div>
+        <div class="info-item">
+          <span>Interval</span>
+          <strong>Every 20 mins</strong>
+        </div>
+      </section>
+
+      <div id="status-box">
+        <span id="status-icon">🎟️</span>
+        <p id="slot-count">Loading...</p>
+      </div>
+
+      <div class="capacity-bar">
+        <div id="capacity-bar-fill" class="capacity-bar-fill"></div>
+      </div>
+
+      <div id="availability-banner" class="availability-banner" hidden>
+        <p id="availability-message">The driver has marked this coaster as unavailable right now.</p>
+      </div>
+
+      <section id="driver-panel" class="driver-panel" hidden>
+        <div class="driver-panel-header">
+          <h2>🚐 Driver Panel</h2>
+          <button id="driver-logout" class="link-btn" type="button">Log out</button>
+        </div>
+        <div class="driver-buttons">
+          <button id="mark-available-btn" class="btn board" type="button">✅ Available</button>
+          <button id="mark-unavailable-btn" class="btn exit" type="button">🚫 Unavailable</button>
+        </div>
+        <div class="driver-buttons">
+          <button id="mark-not-full-btn" class="btn board" type="button">🟢 Not Full</button>
+          <button id="mark-full-btn" class="btn exit" type="button">🔴 Full</button>
+        </div>
+        <p id="driver-current-status" class="driver-current-status"></p>
+      </section>
+
+      <section class="seat-section">
+        <div class="section-heading">
+          <h2>Live seat slots</h2>
+          <span id="sync-indicator" class="sync-indicator">Connecting…</span>
+        </div>
+        <div id="seat-grid" class="seat-grid"></div>
+      </section>
 
       <div class="schedule-selectors">
         <div class="select-group">
-          <label for="route-select">Select Route:</label>
-          <select id="route-select" class="trip-dropdown">
-            <option value="main-to-apex">Main Campus ➔ Apex Campus</option>
-            <option value="apex-to-main">Apex Campus ➔ Main Campus</option>
+          <label for="select-dapdap-mabiga"><strong>MCC Dapdap to Mabiga</strong></label>
+          <select id="select-dapdap-mabiga" class="trip-dropdown">
+            <option value="" disabled selected>-- Select Time --</option>
+          </select>
+        </div>
+
+        <div class="select-group">
+          <label for="select-mabiga-dapdap"><strong>Mabiga to MCC Dapdap</strong></label>
+          <select id="select-mabiga-dapdap" class="trip-dropdown">
+            <option value="" disabled selected>-- Select Time --</option>
           </select>
         </div>
       </div>
 
-      <div id="status-box">
-        <span id="status-icon">🚌</span>
-        <div id="slot-count">
-          <span class="available-num">24</span> Seats Available
+      <section id="reservation-panel" class="reservation-panel" hidden>
+        <p id="reservation-trip"></p>
+        <div class="timer-wrap">
+          <span>Expires in:</span>
+          <strong id="reservation-timer">10:00</strong>
         </div>
-      </div>
-
-      <div class="capacity-bar">
-        <div class="capacity-bar-fill" style="width: 20%;"></div>
-      </div>
-
-      <div class="seat-section">
-        <div class="section-heading">
-          <h2>Select a Seat</h2>
-          <span class="sync-indicator">Live Updates</span>
-        </div>
-        <div class="seat-grid">
-          <div class="seat free"><span class="seat-num">01</span><span class="seat-badge">Free</span></div>
-          <div class="seat free"><span class="seat-num">02</span><span class="seat-badge">Free</span></div>
-          <div class="aisle-spacer"></div>
-          <div class="seat reserved"><span class="seat-num">03</span><span class="seat-badge">Taken</span></div>
-          <div class="seat free"><span class="seat-num">04</span><span class="seat-badge">Free</span></div>
-          
-          <div class="seat free"><span class="seat-num">05</span><span class="seat-badge">Free</span></div>
-          <div class="seat mine"><span class="seat-num">06</span><span class="seat-badge">Yours</span></div>
-          <div class="aisle-spacer"></div>
-          <div class="seat free"><span class="seat-num">07</span><span class="seat-badge">Free</span></div>
-          <div class="seat free"><span class="seat-num">08</span><span class="seat-badge">Free</span></div>
-        </div>
-      </div>
+        <div id="checkin-qr" class="checkin-qr"></div>
+      </section>
 
       <div id="controls">
-        <button class="btn board">Reserve Seat</button>
-        <button class="btn exit">Cancel Reservation</button>
+        <button id="reserve-btn" class="btn board">Reserve Seat</button>
+        <button id="cancel-btn" class="btn exit" hidden>Cancel Reservation</button>
       </div>
+    </div>
+  </main>
+
+  <div id="role-select-screen" class="modal-overlay" hidden>
+    <div class="modal-card">
+      <h2>Select Role</h2>
+      <button id="role-student-btn" class="btn board" style="margin-bottom:8px;">🎓 Student</button>
+      <button id="role-driver-btn" class="btn exit">🚐 Driver</button>
     </div>
   </div>
 
-  <div id="toast" class="toast">Action completed!</div>
+  <div id="login-modal" class="modal-overlay" hidden>
+    <div class="modal-card">
+      <h2>Driver Login</h2>
+      <form id="login-form">
+        <label class="field-label">Email</label>
+        <input type="email" id="login-email" required>
+        <label class="field-label">Password</label>
+        <input type="password" id="login-password" required>
+        <p id="login-error" class="login-error" hidden></p>
+        <div class="modal-actions">
+          <button type="submit" class="btn board">Log In</button>
+          <button type="button" id="login-cancel" class="btn exit">Back</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
 
   <script src="script.js"></script>
 </body>
