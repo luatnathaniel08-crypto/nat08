@@ -198,23 +198,43 @@ function renderSeats() {
   let reservedCount = 0;
 
   for (let i = 1; i <= CAPACITY; i++) {
+    // Insert empty aisle spacer between column 2 and 3
+    if ((i - 1) % 4 === 2) {
+      const aisle = document.createElement("div");
+      aisle.className = "aisle-spacer";
+      seatGrid.appendChild(aisle);
+    }
+
     const seatEl = document.createElement("div");
     seatEl.className = "seat";
 
-    const resEntry = Object.values(tripData).find(r => r.seatNumber === i && r.status === "ACTIVE");
+    const resEntry = Object.values(tripData).find(
+      (r) => r.seatNumber === i && r.status === "ACTIVE"
+    );
 
     if (resEntry) {
       reservedCount++;
       if (resEntry.deviceId === deviceId) {
         seatEl.classList.add("mine");
-        seatEl.innerHTML = `S${i}<br>YOU`;
+        seatEl.innerHTML = `
+          <span class="seat-num">Seat ${i}</span>
+          <span class="seat-badge">YOU</span>
+        `;
       } else {
         seatEl.classList.add("reserved");
-        seatEl.innerHTML = `S${i}<br>TAKEN`;
+        seatEl.innerHTML = `
+          <span class="seat-num">Seat ${i}</span>
+          <span class="seat-badge">TAKEN</span>
+        `;
       }
     } else {
-      seatEl.innerHTML = `S${i}<br>FREE`;
+      seatEl.classList.add("free");
+      seatEl.innerHTML = `
+        <span class="seat-num">Seat ${i}</span>
+        <span class="seat-badge">FREE</span>
+      `;
     }
+
     seatGrid.appendChild(seatEl);
   }
 
