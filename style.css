@@ -34,20 +34,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Embedded High-Res Transparent Logo Watermark */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="500" cy="500" r="480" fill="%23404040"/><circle cx="500" cy="500" r="410" fill="%23b81d24"/><path d="M500 120 C 300 120, 200 250, 200 500 C 200 750, 300 880, 500 880 C 700 880, 800 750, 800 500 C 800 250, 700 120, 500 120 Z" fill="%238b0000"/><text x="500" y="240" fill="white" font-size="52" font-family="Arial, sans-serif" font-weight="900" text-anchor="middle" letter-spacing="3">MABALACAT CITY COLLEGE</text><text x="500" y="810" fill="white" font-size="44" font-family="Arial, sans-serif" font-weight="900" text-anchor="middle" letter-spacing="4">2008 • PAMPANGA</text><g transform="translate(370, 320) scale(1.3)"><path d="M100 0 L180 30 L180 150 C180 220 100 280 100 280 C100 280 20 220 20 150 L20 30 Z" fill="%23800000" stroke="%23d3d3d3" stroke-width="6"/><path d="M100 0 L100 280 C100 280 20 220 20 150 L20 30 Z" fill="%23b81d24"/><path d="M100 40 L100 120 M85 90 L115 90" stroke="%23ffcc00" stroke-width="8"/><circle cx="150" cy="80" r="25" fill="%23228b22"/><circle cx="65" cy="200" r="20" fill="white"/><circle cx="140" cy="200" r="20" fill="white"/></g></svg>'), url('logo.png');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: min(85vw, 520px);
-  opacity: 0.14; /* Adjust transparency here (0.10 to 0.20) */
-  pointer-events: none;
-  z-index: 0;
-}
-
 .card {
   position: relative;
   width: 100%;
@@ -62,19 +48,19 @@ body::before {
   z-index: 1;
 }
 
-.card::before, .card::after {
+/* Transparent Logo Background Inside Card Interface */
+.card::before {
   content: "";
   position: absolute;
-  top: 50%;
-  width: 24px;
-  height: 24px;
-  background: var(--navy);
-  border-radius: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
+  inset: 0;
+  background-image: url('logo.png'); /* Or use your logo path */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  opacity: 0.12; /* Adjust transparency here */
+  pointer-events: none;
+  z-index: 0;
 }
-.card::before { left: -13px; }
-.card::after { right: -13px; }
 
 .card-inner { position: relative; z-index: 1; }
 
@@ -336,7 +322,6 @@ h1 {
 .btn.board { background: var(--teal); }
 .btn.exit { background: var(--navy-light); }
 
-/* --- Seat Section & Grid (Bus Layout) --- */
 .seat-section {
   background: rgba(255,255,255,.62);
   border: 1px solid rgba(27,33,64,.10);
@@ -448,7 +433,6 @@ h1 {
   color: #ffffff;
 }
 
-/* Schedule Selectors */
 .schedule-selectors {
   display: flex;
   flex-direction: column;
