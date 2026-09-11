@@ -126,53 +126,87 @@ function renderUI() {
   driverCurrentStatus.textContent = `Status: ${coasterAvailable ? 'AVAILABLE' : 'UNAVAILABLE'} | ${coasterFull ? 'FULL' : 'NOT FULL'}`;
 }
 
+// DOM Selectors
+const selectDapdapMabiga = document.getElementById("select-dapdap-mabiga");
+const selectMabigaDapdap = document.getElementById("select-mabiga-dapdap");
+
+// Schedule Arrays
+const dapdapToMabigaTimes = [
+  { label: "6:00 AM", val: "dapdap_mabiga_0600" },
+  { label: "6:40 AM", val: "dapdap_mabiga_0640" },
+  { label: "7:20 AM", val: "dapdap_mabiga_0720" },
+  { label: "8:00 AM", val: "dapdap_mabiga_0800" },
+  { label: "10:00 AM", val: "dapdap_mabiga_1000" },
+  { label: "10:40 AM", val: "dapdap_mabiga_1040" },
+  { label: "11:20 AM", val: "dapdap_mabiga_1120" },
+  { label: "1:00 PM", val: "dapdap_mabiga_1300" },
+  { label: "2:00 PM", val: "dapdap_mabiga_1400" },
+  { label: "3:00 PM", val: "dapdap_mabiga_1500" },
+  { label: "4:00 PM", val: "dapdap_mabiga_1600" },
+  { label: "5:00 PM", val: "dapdap_mabiga_1700" },
+  { label: "6:00 PM", val: "dapdap_mabiga_1800" },
+  { label: "7:00 PM", val: "dapdap_mabiga_1900" },
+  { label: "8:00 PM", val: "dapdap_mabiga_2000" },
+  { label: "9:10 PM", val: "dapdap_mabiga_2110" }
+];
+
+const mabigaToDapdapTimes = [
+  { label: "6:20 AM", val: "mabiga_dapdap_0620" },
+  { label: "7:00 AM", val: "mabiga_dapdap_0700" },
+  { label: "7:40 AM", val: "mabiga_dapdap_0740" },
+  { label: "8:20 AM", val: "mabiga_dapdap_0820" },
+  { label: "10:20 AM", val: "mabiga_dapdap_1020" },
+  { label: "11:00 AM", val: "mabiga_dapdap_1100" },
+  { label: "11:40 AM", val: "mabiga_dapdap_1140" },
+  { label: "1:20 PM", val: "mabiga_dapdap_1320" },
+  { label: "2:20 PM", val: "mabiga_dapdap_1420" },
+  { label: "3:20 PM", val: "mabiga_dapdap_1520" },
+  { label: "4:20 PM", val: "mabiga_dapdap_1620" },
+  { label: "5:20 PM", val: "mabiga_dapdap_1720" },
+  { label: "6:20 PM", val: "mabiga_dapdap_1820" },
+  { label: "7:20 PM", val: "mabiga_dapdap_1920" },
+  { label: "8:20 PM", val: "mabiga_dapdap_2020" }
+];
+
 function renderTripOptions(dateKey) {
-  tripSelect.innerHTML = "";
-
-  const schedules = [
-    // MCC Dapdap to Mabiga
-    { label: "6:00 AM - Dapdap to Mabiga", val: "dapdap_mabiga_0600" },
-    { label: "6:40 AM - Dapdap to Mabiga", val: "dapdap_mabiga_0640" },
-    { label: "7:20 AM - Dapdap to Mabiga", val: "dapdap_mabiga_0720" },
-    { label: "8:00 AM - Dapdap to Mabiga", val: "dapdap_mabiga_0800" },
-    { label: "10:00 AM - Dapdap to Mabiga", val: "dapdap_mabiga_1000" },
-    { label: "10:40 AM - Dapdap to Mabiga", val: "dapdap_mabiga_1040" },
-    { label: "11:20 AM - Dapdap to Mabiga", val: "dapdap_mabiga_1120" },
-    { label: "1:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1300" },
-    { label: "2:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1400" },
-    { label: "3:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1500" },
-    { label: "4:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1600" },
-    { label: "5:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1700" },
-    { label: "6:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1800" },
-    { label: "7:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_1900" },
-    { label: "8:00 PM - Dapdap to Mabiga", val: "dapdap_mabiga_2000" },
-    { label: "9:10 PM - Dapdap to Mabiga", val: "dapdap_mabiga_2110" },
-
-    // Mabiga to MCC Dapdap
-    { label: "6:20 AM - Mabiga to Dapdap", val: "mabiga_dapdap_0620" },
-    { label: "7:00 AM - Mabiga to Dapdap", val: "mabiga_dapdap_0700" },
-    { label: "7:40 AM - Mabiga to Dapdap", val: "mabiga_dapdap_0740" },
-    { label: "8:20 AM - Mabiga to Dapdap", val: "mabiga_dapdap_0820" },
-    { label: "10:20 AM - Mabiga to Dapdap", val: "mabiga_dapdap_1020" },
-    { label: "11:00 AM - Mabiga to Dapdap", val: "mabiga_dapdap_1100" },
-    { label: "11:40 AM - Mabiga to Dapdap", val: "mabiga_dapdap_1140" },
-    { label: "1:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1320" },
-    { label: "2:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1420" },
-    { label: "3:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1520" },
-    { label: "4:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1620" },
-    { label: "5:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1720" },
-    { label: "6:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1820" },
-    { label: "7:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_1920" },
-    { label: "8:20 PM - Mabiga to Dapdap", val: "mabiga_dapdap_2020" }
-  ];
-
-  schedules.forEach((item) => {
+  // Populate Dapdap -> Mabiga Wheel
+  selectDapdapMabiga.innerHTML = '<option value="" disabled>-- Select Time --</option>';
+  dapdapToMabigaTimes.forEach((item) => {
     const opt = document.createElement("option");
     opt.value = `${dateKey}_${item.val}`;
-    opt.textContent = item.label;
-    tripSelect.appendChild(opt);
+    opt.textContent = `${item.label} (Dapdap → Mabiga)`;
+    selectDapdapMabiga.appendChild(opt);
   });
+
+  // Populate Mabiga -> Dapdap Wheel
+  selectMabigaDapdap.innerHTML = '<option value="" disabled>-- Select Time --</option>';
+  mabigaToDapdapTimes.forEach((item) => {
+    const opt = document.createElement("option");
+    opt.value = `${dateKey}_${item.val}`;
+    opt.textContent = `${item.label} (Mabiga → Dapdap)`;
+    selectMabigaDapdap.appendChild(opt);
+  });
+
+  // Set default active trip to 6:00 AM Dapdap to Mabiga
+  const defaultTrip = `${dateKey}_dapdap_mabiga_0600`;
+  selectedTrip = defaultTrip;
+  selectDapdapMabiga.value = defaultTrip;
+  selectMabigaDapdap.selectedIndex = 0;
 }
+
+// Event Listener for Dapdap -> Mabiga Wheel
+selectDapdapMabiga.addEventListener("change", (e) => {
+  selectedTrip = e.target.value;
+  selectMabigaDapdap.selectedIndex = 0; // Reset other scroll wheel
+  renderUI();
+});
+
+// Event Listener for Mabiga -> Dapdap Wheel
+selectMabigaDapdap.addEventListener("change", (e) => {
+  selectedTrip = e.target.value;
+  selectDapdapMabiga.selectedIndex = 0; // Reset other scroll wheel
+  renderUI();
+});
 
 function renderSeats() {
   seatGrid.innerHTML = "";
