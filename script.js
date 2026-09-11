@@ -52,10 +52,9 @@ function getDeviceId() {
 }
 const deviceId = getDeviceId();
 
+// DOM Elements
 const slotCount = document.getElementById("slot-count");
 const phClock = document.getElementById("ph-clock");
-const tripSelect = document.getElementById("trip-select");
-const tripDate = document.getElementById("trip-date");
 const reserveBtn = document.getElementById("reserve-btn");
 const cancelBtn = document.getElementById("cancel-btn");
 const reservationPanel = document.getElementById("reservation-panel");
@@ -85,50 +84,11 @@ const markFullBtn = document.getElementById("mark-full-btn");
 const markNotFullBtn = document.getElementById("mark-not-full-btn");
 const driverCurrentStatus = document.getElementById("driver-current-status");
 const capacityBarFill = document.getElementById("capacity-bar-fill");
+const selectDapdapMabiga = document.getElementById("select-dapdap-mabiga");
+const selectMabigaDapdap = document.getElementById("select-mabiga-dapdap");
 
 let selectedTrip = null;
 let activeReservation = JSON.parse(localStorage.getItem("active_res") || "null");
-
-function showToast(msg) {
-  toast.textContent = msg;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 3500);
-}
-
-function updateClockOnly() {
-  const now = new Date();
-  phClock.textContent = `🇵🇭 ${now.toLocaleTimeString("en-US", { timeZone: TZ })}`;
-}
-
-function renderUI() {
-  updateClockOnly();
-  
-  const dateKey = new Date().toISOString().split("T")[0];
-  tripDate.textContent = dateKey;
-
-  if (!coasterAvailable) {
-    availabilityBanner.hidden = false;
-    availabilityMessage.textContent = "Coaster marked UNAVAILABLE by driver.";
-  } else if (coasterFull) {
-    availabilityBanner.hidden = false;
-    availabilityMessage.textContent = "Coaster marked FULL by driver.";
-  } else {
-    availabilityBanner.hidden = true;
-  }
-
-  if (!selectedTrip) {
-    selectedTrip = `${dateKey}_360`;
-    renderTripOptions(dateKey);
-  }
-
-  renderSeats();
-  renderReservationUI();
-  driverCurrentStatus.textContent = `Status: ${coasterAvailable ? 'AVAILABLE' : 'UNAVAILABLE'} | ${coasterFull ? 'FULL' : 'NOT FULL'}`;
-}
-
-// DOM Selectors
-const selectDapdapMabiga = document.getElementById("select-dapdap-mabiga");
-const selectMabigaDapdap = document.getElementById("select-mabiga-dapdap");
 
 // Schedule Arrays
 const dapdapToMabigaTimes = [
@@ -168,9 +128,19 @@ const mabigaToDapdapTimes = [
   { label: "8:20 PM", val: "mabiga_dapdap_2020" }
 ];
 
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3500);
+}
+
+function updateClockOnly() {
+  const now = new Date();
+  phClock.textContent = `🇵🇭 ${now.toLocaleTimeString("en-US", { timeZone: TZ })}`;
+}
+
 function renderTripOptions(dateKey) {
-  // Populate Dapdap -> Mabiga Wheel
-  selectDapdapMabiga.innerHTML = '<option value="" disabled>-- Select Time --</option>';
+  selectDapdapMabiga.innerHTML = '<option value="" disabled selected>-- Select Time --</option>';
   dapdapToMabigaTimes.forEach((item) => {
     const opt = document.createElement("option");
     opt.value = `${dateKey}_${item.val}`;
@@ -178,8 +148,7 @@ function renderTripOptions(dateKey) {
     selectDapdapMabiga.appendChild(opt);
   });
 
-  // Populate Mabiga -> Dapdap Wheel
-  selectMabigaDapdap.innerHTML = '<option value="" disabled>-- Select Time --</option>';
+  selectMabigaDapdap.innerHTML = '<option value="" disabled selected>-- Select Time --</option>';
   mabigaToDapdapTimes.forEach((item) => {
     const opt = document.createElement("option");
     opt.value = `${dateKey}_${item.val}`;
@@ -187,24 +156,47 @@ function renderTripOptions(dateKey) {
     selectMabigaDapdap.appendChild(opt);
   });
 
-  // Set default active trip to 6:00 AM Dapdap to Mabiga
-  const defaultTrip = `${dateKey}_dapdap_mabiga_0600`;
-  selectedTrip = defaultTrip;
-  selectDapdapMabiga.value = defaultTrip;
-  selectMabigaDapdap.selectedIndex = 0;
+  if (!selectedTrip) {
+    const defaultTrip = `${dateKey}_dapdap_mabiga_0600`;
+    selectedTrip = defaultTrip;
+    selectDapdapMabiga.value = defaultTrip;
+  }
 }
 
-// Event Listener for Dapdap -> Mabiga Wheel
+function renderUI() {
+  updateClockOnly();
+  
+  const dateKey = new Date().toISOString().split("T")[0];
+
+  if (!coasterAvailable) {
+    availabilityBanner.hidden = false;
+    availabilityMessage.textContent = "Coaster marked UNAVAILABLE by driver.";
+  } else if (coasterFull) {
+    availabilityBanner.hidden = false;
+    availabilityMessage.textContent = "Coaster marked FULL by driver.";
+  } else {
+    availabilityBanner.hidden = true;
+  }
+
+  if (selectDapdapMabiga.options.length <= 1) {
+    renderTripOptions(dateKey);
+  }
+
+  renderSeats();
+  renderReservationUI();
+  driverCurrentStatus.textContent = `Status: ${coasterAvailable ? 'AVAILABLE' : 'UNAVAILABLE'} | ${coasterFull ? 'FULL' : 'NOT FULL'}`;
+}
+
+// Select Wheel Events
 selectDapdapMabiga.addEventListener("change", (e) => {
   selectedTrip = e.target.value;
-  selectMabigaDapdap.selectedIndex = 0; // Reset other scroll wheel
+  selectMabigaDapdap.selectedIndex = 0;
   renderUI();
 });
 
-// Event Listener for Mabiga -> Dapdap Wheel
 selectMabigaDapdap.addEventListener("change", (e) => {
   selectedTrip = e.target.value;
-  selectDapdapMabiga.selectedIndex = 0; // Reset other scroll wheel
+  selectDapdapMabiga.selectedIndex = 0;
   renderUI();
 });
 
@@ -301,7 +293,7 @@ function stopTimer() {
   }
 }
 
-// Database Listeners
+// Firebase Sync Listeners
 onValue(ref(db, ".info/connected"), (snap) => {
   syncIndicator.textContent = snap.val() ? "Live Sync Active" : "Offline";
 });
@@ -337,7 +329,7 @@ onValue(ref(db, "coasterAvailability"), (snap) => {
   renderUI();
 });
 
-// Reservation Click Handlers
+// Control Handlers
 reserveBtn.addEventListener("click", () => {
   if (!coasterAvailable || coasterFull) return showToast("Coaster unavailable.");
 
@@ -386,7 +378,7 @@ cancelBtn.addEventListener("click", () => {
     .catch((err) => showToast("Error: " + err.message));
 });
 
-// Driver Panel Control Actions
+// Driver Panel Handlers
 markAvailableBtn.addEventListener("click", () => {
   set(ref(db, "coasterAvailability/available"), true)
     .then(() => showToast("Updated: Available"))
@@ -411,7 +403,7 @@ markNotFullBtn.addEventListener("click", () => {
     .catch((err) => showToast("Error: " + err.message));
 });
 
-// Role Switcher & Modal Handlers
+// Navigation & Auth
 switchRoleBtn.addEventListener("click", () => { roleSelectScreen.hidden = false; });
 roleStudentBtn.addEventListener("click", () => { roleSelectScreen.hidden = true; driverPanel.hidden = true; });
 roleDriverBtn.addEventListener("click", () => {
@@ -440,11 +432,5 @@ driverLogout.addEventListener("click", () => {
   driverPanel.hidden = true;
 });
 
-tripSelect.addEventListener("change", (e) => {
-if (!selectedTrip) {
-  selectedTrip = `${dateKey}_dapdap_mabiga_0600`;
-  renderTripOptions(dateKey);
-}
-
-// Update Clock Only Every Second (Does not disrupt countdown)
+// Clock Tick Loop
 setInterval(updateClockOnly, 1000);
