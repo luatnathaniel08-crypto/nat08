@@ -1,11 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  onValue,
-  set
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
-
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDtkZE_OCad8dLlbFwAMFaCCC048cy6UQc",
   authDomain: "coaster-reservation.firebaseapp.com",
@@ -16,8 +9,8 @@ const firebaseConfig = {
   appId: "1:308183827970:web:60b5e3ba8c4dfc7657491b"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
 const CAPACITY = 30;
 const RESERVATION_HOLD_MS = 10 * 60 * 1000;
@@ -25,7 +18,7 @@ const TZ = "Asia/Manila";
 
 let serverTimeOffset = 0;
 
-onValue(ref(db, ".info/serverTimeOffset"), (snap) => {
+db.ref(".info/serverTimeOffset").on("value", (snap) => {
   serverTimeOffset = snap.val() || 0;
 });
 
@@ -90,7 +83,7 @@ const selectMabigaDapdap = document.getElementById("select-mabiga-dapdap");
 let selectedTrip = null;
 let activeReservation = JSON.parse(localStorage.getItem("active_res") || "null");
 
-// Schedule Arrays
+// Schedules
 const dapdapToMabigaTimes = [
   { label: "6:00 AM", val: "dapdap_mabiga_0600" },
   { label: "6:40 AM", val: "dapdap_mabiga_0640" },
@@ -165,7 +158,6 @@ function renderTripOptions(dateKey) {
 
 function renderUI() {
   updateClockOnly();
-  
   const dateKey = new Date().toISOString().split("T")[0];
 
   if (!coasterAvailable) {
@@ -268,7 +260,7 @@ function startTimer() {
       stopTimer();
       reservationTimer.textContent = "00:00";
       
-      set(ref(db, `reservations/${activeReservation.tripId}/${activeReservation.id}/status`), "EXPIRED");
+      db.ref(`reservations/${activeReservation.tripId}/${activeReservation.id}/status`).set("EXPIRED");
       localStorage.removeItem("active_res");
       activeReservation = null;
       showToast("Reservation Expired!");
@@ -293,12 +285,12 @@ function stopTimer() {
   }
 }
 
-// Firebase Sync Listeners
-onValue(ref(db, ".info/connected"), (snap) => {
+// Database Listeners
+db.ref(".info/connected").on("value", (snap) => {
   syncIndicator.textContent = snap.val() ? "Live Sync Active" : "Offline";
 });
 
-onValue(ref(db, "reservations"), (snap) => {
+db.ref("reservations").on("value", (snap) => {
   reservations = snap.val() || {};
 
   let foundActive = null;
@@ -322,7 +314,7 @@ onValue(ref(db, "reservations"), (snap) => {
   renderUI();
 });
 
-onValue(ref(db, "coasterAvailability"), (snap) => {
+db.ref("coasterAvailability").on("value", (snap) => {
   const data = snap.val() || {};
   coasterAvailable = data.available !== false;
   coasterFull = data.full === true;
@@ -354,7 +346,7 @@ reserveBtn.addEventListener("click", () => {
     tripId: selectedTrip
   };
 
-  set(ref(db, `reservations/${selectedTrip}/${resId}`), newRes)
+  db.ref(`reservations/${selectedTrip}/${resId}`).set(newRes)
     .then(() => {
       activeReservation = newRes;
       localStorage.setItem("active_res", JSON.stringify(newRes));
@@ -367,7 +359,7 @@ reserveBtn.addEventListener("click", () => {
 cancelBtn.addEventListener("click", () => {
   if (!activeReservation) return;
   
-  set(ref(db, `reservations/${activeReservation.tripId}/${activeReservation.id}/status`), "CANCELLED")
+  db.ref(`reservations/${activeReservation.tripId}/${activeReservation.id}/status`).set("CANCELLED")
     .then(() => {
       stopTimer();
       activeReservation = null;
@@ -380,25 +372,25 @@ cancelBtn.addEventListener("click", () => {
 
 // Driver Panel Handlers
 markAvailableBtn.addEventListener("click", () => {
-  set(ref(db, "coasterAvailability/available"), true)
+  db.ref("coasterAvailability/available").set(true)
     .then(() => showToast("Updated: Available"))
     .catch((err) => showToast("Error: " + err.message));
 });
 
 markUnavailableBtn.addEventListener("click", () => {
-  set(ref(db, "coasterAvailability/available"), false)
+  db.ref("coasterAvailability/available").set(false)
     .then(() => showToast("Updated: Unavailable"))
     .catch((err) => showToast("Error: " + err.message));
 });
 
 markFullBtn.addEventListener("click", () => {
-  set(ref(db, "coasterAvailability/full"), true)
+  db.ref("coasterAvailability/full").set(true)
     .then(() => showToast("Updated: Marked Full"))
     .catch((err) => showToast("Error: " + err.message));
 });
 
 markNotFullBtn.addEventListener("click", () => {
-  set(ref(db, "coasterAvailability/full"), false)
+  db.ref("coasterAvailability/full").set(false)
     .then(() => showToast("Updated: Marked Not Full"))
     .catch((err) => showToast("Error: " + err.message));
 });
